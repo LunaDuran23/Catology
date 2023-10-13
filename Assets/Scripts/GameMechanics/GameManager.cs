@@ -1,24 +1,71 @@
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+using System.Xml.Serialization;
 
 public class GameManager : MonoBehaviour
 {
-    public List<Button> buttons = new List<Button>();
-    // si creamos que tenga varios niveles este awake se vuelve start y en el awake agregamos las cartas
-    void Awake()
-    {
-        GetButtonCards();
-    }
+    public Card[] selectedCards = new Card[2];
+    public int tries;
+    private int totalCards = 1;
 
-    private void GetButtonCards()
-    {
-        GameObject[] cardsButtons = GameObject.FindGameObjectsWithTag("PuzzleButton");
 
-        for (int i = 0; i < cardsButtons.Length; i++)
+
+
+    public void CheckMatch(Card card)
+    {
+        // first card selected
+        if (selectedCards[0] == null)
         {
-            buttons.Add(cardsButtons[i].GetComponent<Button>());
+            Debug.Log("si entro");
+            selectedCards[0] = card;
+        }
+
+        //second card selected
+        else
+        {
+            tries ++;
+            selectedCards[1] = card;
+
+            if(selectedCards[0].cardID == selectedCards[1].cardID)
+            {
+                Matched();
+            }
+            else
+            {
+                NotMatched();
+            }
+
+            //empty list
+            selectedCards[0] = null;
+            selectedCards[1] = null;
+
         }
     }
+   
+    private void Matched()
+    {
+        selectedCards[0].DestroyCard();
+        selectedCards[1].DestroyCard();
+        totalCards--;
+
+        if (totalCards == 0)
+        {
+            GameEnd();
+        }
+    }
+
+    private void NotMatched()
+    {
+        selectedCards[0].TurnCard();
+        selectedCards[1].TurnCard();
+    }
+
+    void GameEnd()
+    {
+        Debug.Log("Game has ended, number of tries: " + tries);
+    }
+
+    //crear una nueva funcion para inicializar el numero total de cartas si hacemos mas niveles
+
 }
